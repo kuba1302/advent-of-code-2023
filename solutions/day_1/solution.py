@@ -1,6 +1,6 @@
 from pathlib import Path
 
-input_path = Path(__file__).parents[0] / "input.txt"
+input_path = Path(__file__).parents[0] / "input1.txt"
 
 def read_txt(input_path: Path = input_path) -> list[str]:
     with open(input_path, "r") as file:
@@ -27,42 +27,49 @@ number_mappings_by_len = {
     }
 }
 
+def try_get_value_by_string(data_input, i, max_index):
+    for string_len in number_mappings_by_len:
+        if i + string_len - 1 > max_index:
+            i += 1
+            return None, i
+
+        if data_input[i:i+string_len] in number_mappings_by_len[string_len]:
+            value = number_mappings_by_len[string_len][data_input[i:i+string_len]]
+            i += string_len
+            return value, i
+    
+    i += 1
+    return None, i
+    
+        
 def get_numbers_from_sting(data_input: str):
     i = 0
     numbers = []
     max_index = len(data_input) - 1
     while i <= max_index:
         if data_input[i].isnumeric():
-            numbers.append(data_input[i])
+            numbers.append(int(data_input[i]))
             i += 1
-            continue
-    
+            
         else:
-            for string_len in number_mappings_by_len:
-                if i + string_len > max_index:
-                    i += 1
-                    break
-                
-                if data_input[i:i+string_len] in number_mappings_by_len[string_len]:
-                    numbers.append(number_mappings_by_len[string_len][data_input[i:i+string_len]])
-                    i += string_len
-                    break
-                
+            value, i = try_get_value_by_string(data_input, i, max_index)
+            if value:
+                numbers.append(int(value))
     
     return numbers
                 
 def solution():
     data = read_txt()
-    sums = []
+    sum = 0
     
     for data_input in data:
-        print(data_input)
         numbers = get_numbers_from_sting(data_input)
-        
-        min_val, max_val = numbers[0], numbers[-1]
-        sums.append(int(f"{min_val}{max_val}"))
+        first_val, last_val = numbers[0], numbers[-1]
+        print(data_input)
+        print(int(f"{first_val}{last_val}"))
+        sum += int(f"{first_val}{last_val}")
     
-    return sum(sums)
+    return sum
 
 
 def main():
