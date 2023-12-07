@@ -46,6 +46,15 @@ def find_numbers_positions(array: list[list[str]]) -> list[tuple[int, int]]:
     return numbers_positions
 
 
+def find_star_places(array: list[list[str]]) -> list[tuple[int, int]]:
+    star_postitions = []
+    for idx_row, row in enumerate(array):
+        for idx_col, col in enumerate(row):
+            if col == "*":
+                star_postitions.append((idx_row, idx_col))
+    return star_postitions
+
+
 def is_possible_place(
     row_idx: int,
     col_idx: int,
@@ -102,29 +111,6 @@ def is_part_adjastent(
     return False
 
 
-def is_part_gear(
-    array: list[list[str]],
-    parts: list[list[tuple[int, int]]],
-    top_max_idx: int,
-    bottom_max_idx: int,
-    left_max_idx: int,
-    right_max_idx: int,
-) -> bool:
-    for number_position in part:
-        points_to_check = generate_points_to_check(*number_position)
-        for point in points_to_check:
-            if is_possible_place(
-                *point,
-                top_max_idx,
-                bottom_max_idx,
-                left_max_idx,
-                right_max_idx
-            ):
-                if is_special_char(array[point[0]][point[1]]):
-                    return True
-
-    return False
-
 def get_sum_of_part(array: list[list[str]], part: tuple[int, ...]) -> int:
     return int(
         "".join(
@@ -169,10 +155,71 @@ def get_gears():
     left_max_idx = 0
     bottom_max_idx = len(array) - 1
     right_max_idx = len(array[0]) - 1
-    numbers_positions = find_numbers_positions(array)
+    star_places = find_star_places(array)
     
+    # not the most optimal, yet this is not the case in advent :) 
+    gear_sum = 0
+
+    for star_place in star_places:
+        adjent_coors = []
+        points_to_check = generate_points_to_check(*star_place)
+
+        for point in points_to_check:
+            number_coords = []
+
+            if array[point[0]][point[1]].isdigit():
+                number_coords.append(point)
+                left_finished = False
+                right_finished = False
+
+                x_left = point[1]
+                x_right = point[1]
+                y = point[0]
+
+                while not (left_finished and right_finished):
+                    x_left = x_left - 1
+                    x_right = x_right + 1
+
+                    if not left_finished:
+                        if x_left < left_max_idx:
+                            left_finished = True
+                        else:
+                            if array[y][x_left].isdigit():
+                                number_coords.insert(0, (y, x_left))
+                            else:
+                                left_finished = True
+
+                    if not right_finished:
+                        if x_right > right_max_idx:
+                            right_finished = True
+                        else:
+                            if array[y][x_right].isdigit():
+                                number_coords.append((y, x_right))
+                            else:
+                                right_finished = True
+                    
+
+                if number_coords not in adjent_coors:
+                    adjent_coors.append(number_coords)
+
+        if len(adjent_coors) == 2:
+            multiply_result = 1
+            for point_coords in adjent_coors:
+                int_as_char = ""
+                for one_digit_coords in point_coords:
+                    int_as_char += array[one_digit_coords[0]][one_digit_coords[1]]
+                
+                print(int_as_char)
+                multiply_result = multiply_result * int(int_as_char)
+
+            gear_sum += multiply_result
+    
+    return gear_sum
+
+
+
 def main():
-    print(get_sum())
+    print(get_gears())
 
 
 if __name__ == "__main__":
