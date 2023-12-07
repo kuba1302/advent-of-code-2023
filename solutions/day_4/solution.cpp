@@ -6,7 +6,7 @@
 using namespace std;
 
 
-void print_vector(vector<string> vec) {
+void printVector(vector<string> vec) {
     for (int i = 0; i < vec.size(); i++) {
         cout << vec[i] << endl;
     }
@@ -24,7 +24,7 @@ vector<string> splitString(const string &str, char delim) {
     return tokens;
 }
 
-string remove_spaces(string str) {
+string removeSpaces(string str) {
     string string_no_spaces = "";
     for (char c : str) {
         if (c != ' ') {
@@ -34,7 +34,7 @@ string remove_spaces(string str) {
     return string_no_spaces;
 }
 
-vector<string> load_input() {
+vector<string> loadInput() {
     string file_name = "./input.txt";
     vector<string> lines; 
     string line;
@@ -59,19 +59,54 @@ struct Game {
     int number;
     vector<int> winning_numbers;
     vector<int> user_numbers;
+
+    void print() {
+        cout << "Number: " << number << ", Winning numbers: ";
+        for (int num : winning_numbers) {
+            cout << num << " ";
+        }
+        cout << ", User Numbers: ";
+        for (int num : user_numbers) {
+            cout << num << " ";
+        }
+        cout << endl;
+    }
 };
 
 
-vector<Game> load_games(const vector<string> &loaded_input) {
-    vector<Game> games;
-    for (string line: loaded_input) {
-        
+vector<int> splitIntoInts(string str) {
+    vector<int> result;
+    istringstream iss(str);
+    string token;
+
+    while (iss >> token) {
+        int num = stoi(token);
+        result.push_back(num);
     }
+    return result;
+}
+
+vector<Game> loadGames(const vector<string> &loadedInput) {
+    vector<Game> games;
+    for (string line: loadedInput) {
+        Game game;
+        vector<string> stringSplitted = splitString(line, ':');
+        vector<string> splittedIntoGameType = splitString(stringSplitted[1], '|');
+
+        game.number = stoi(stringSplitted[0]);
+        game.winning_numbers = splitIntoInts(splittedIntoGameType[0]);
+        game.user_numbers = splitIntoInts(splittedIntoGameType[1]);
+
+        game.print();
+        games.push_back(game);
+    }
+    return games;
+
 }
 
 int main() {
     // TODO: Add your code here
     
-    vector<string> loaded_input = load_input();
-    print_vector(loaded_input);
+    vector<string> loadedInput = loadInput();
+    vector<Game> loadedGames = loadGames(loadedInput); 
 }
