@@ -102,6 +102,29 @@ def is_part_adjastent(
     return False
 
 
+def is_part_gear(
+    array: list[list[str]],
+    parts: list[list[tuple[int, int]]],
+    top_max_idx: int,
+    bottom_max_idx: int,
+    left_max_idx: int,
+    right_max_idx: int,
+) -> bool:
+    for number_position in part:
+        points_to_check = generate_points_to_check(*number_position)
+        for point in points_to_check:
+            if is_possible_place(
+                *point,
+                top_max_idx,
+                bottom_max_idx,
+                left_max_idx,
+                right_max_idx
+            ):
+                if is_special_char(array[point[0]][point[1]]):
+                    return True
+
+    return False
+
 def get_sum_of_part(array: list[list[str]], part: tuple[int, ...]) -> int:
     return int(
         "".join(
@@ -139,6 +162,15 @@ def get_sum():
     return sum_of_parts
 
 
+def get_gears():
+    lines = load_input()
+    array = load_into_array(lines)
+    top_max_idx = 0
+    left_max_idx = 0
+    bottom_max_idx = len(array) - 1
+    right_max_idx = len(array[0]) - 1
+    numbers_positions = find_numbers_positions(array)
+    
 def main():
     print(get_sum())
 
