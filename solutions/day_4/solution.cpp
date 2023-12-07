@@ -6,7 +6,8 @@
 using namespace std;
 
 
-void printVector(vector<string> vec) {
+template <typename T>
+void printVector(vector<T> vec) {
     for (int i = 0; i < vec.size(); i++) {
         cout << vec[i] << endl;
     }
@@ -57,12 +58,12 @@ vector<string> loadInput() {
 
 struct Game {
     int number;
-    vector<int> winning_numbers;
+    vector<int> winningNumbers;
     vector<int> user_numbers;
 
     void print() {
         cout << "Number: " << number << ", Winning numbers: ";
-        for (int num : winning_numbers) {
+        for (int num : winningNumbers) {
             cout << num << " ";
         }
         cout << ", User Numbers: ";
@@ -70,6 +71,18 @@ struct Game {
             cout << num << " ";
         }
         cout << endl;
+    }
+
+    vector<int> getIntersection() {
+        vector<int> intersectedNumbers;
+        for (int winningNumber: winningNumbers) {
+            for (int userNumber: user_numbers) {
+                if (winningNumber == userNumber) {
+                    intersectedNumbers.push_back(userNumber);
+                }
+            }
+        }
+        return intersectedNumbers;
     }
 };
 
@@ -86,6 +99,21 @@ vector<int> splitIntoInts(string str) {
     return result;
 }
 
+int calculateResult(vector<int> intersectedResults) {
+    if (intersectedResults.size() == 0) {
+        return 0;
+    }
+    else if (intersectedResults.size() == 1) {
+        return 1;
+    }
+
+    int result = 1;
+    for (int i = 1; i < intersectedResults.size(); i++) {
+        result *= 2;
+    }
+    return result;
+}
+
 vector<Game> loadGames(const vector<string> &loadedInput) {
     vector<Game> games;
     for (string line: loadedInput) {
@@ -94,14 +122,22 @@ vector<Game> loadGames(const vector<string> &loadedInput) {
         vector<string> splittedIntoGameType = splitString(stringSplitted[1], '|');
 
         game.number = stoi(stringSplitted[0]);
-        game.winning_numbers = splitIntoInts(splittedIntoGameType[0]);
+        game.winningNumbers = splitIntoInts(splittedIntoGameType[0]);
         game.user_numbers = splitIntoInts(splittedIntoGameType[1]);
 
-        game.print();
         games.push_back(game);
     }
     return games;
 
+}
+
+int getResults(const vector<Game> &games) {
+    int result = 0;
+
+    for (Game g: games) {
+        result += calculateResult(g.getIntersection());
+    }
+    return result;
 }
 
 int main() {
@@ -109,4 +145,6 @@ int main() {
     
     vector<string> loadedInput = loadInput();
     vector<Game> loadedGames = loadGames(loadedInput); 
+    int result = getResults(loadedGames);
+    cout << "Final result: " << result << endl;
 }
