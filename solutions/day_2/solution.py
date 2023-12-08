@@ -88,6 +88,7 @@ class WholeGame:
             * self.color_max_counts.red
         )
 
+
 def load_input(file_name: str = input_path) -> list[WholeGame]:
     games_list = []
     with open(file_name, "r") as file:
@@ -136,11 +137,13 @@ def get_power_of_possible_ids():
     power_sum = 0
     for game in games_list:
         power_sum += game.get_power()
-    
+
     return power_sum
+
 
 def main():
     print(get_power_of_possible_ids())
-    
+
+
 if __name__ == "__main__":
     main()
