@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 using namespace std;
 
@@ -84,6 +85,16 @@ struct Game {
         }
         return intersectedNumbers;
     }
+
+    int getNumberOfIntersections() {
+        return getIntersection().size();
+    }
+    
+};
+
+struct GameWithCount {
+    Game game;
+    int count;
 };
 
 
@@ -131,6 +142,40 @@ vector<Game> loadGames(const vector<string> &loadedInput) {
 
 }
 
+class Stack {
+    // wrong solution, will keep it for future me
+    // in case I need stack implementation
+    private:
+        vector<Game> stack;
+    public:
+        void push(Game game) {
+            stack.push_back(game);
+        }
+
+        Game pop() {
+            Game game = stack.back();
+            stack.pop_back();
+            return game;
+        }
+
+        int size() {
+            return stack.size();
+        }
+
+        bool isEmpty() {
+            return stack.size() == 0;
+        }
+
+        bool areAllGamesEmpty() {
+            for (Game g: stack) {
+                if (g.getNumberOfIntersections() != 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+};
+
 int getResults(const vector<Game> &games) {
     int result = 0;
 
@@ -141,10 +186,53 @@ int getResults(const vector<Game> &games) {
 }
 
 int main() {
-    // TODO: Add your code here
-    
     vector<string> loadedInput = loadInput();
     vector<Game> loadedGames = loadGames(loadedInput); 
-    int result = getResults(loadedGames);
-    cout << "Final result: " << result << endl;
+
+    unordered_map<int, GameWithCount> gamesWithCount;
+    vector<int> gameIndexes;
+
+    for (Game g: loadedGames) {
+        GameWithCount gameCounted;
+        gameCounted.count = 1;
+        gameCounted.game = g;
+        gamesWithCount.insert({g.number, gameCounted});
+        gameIndexes.push_back(g.number);
+    }
+    GameWithCount gameWithCount;
+    int maxIndex = gameIndexes.back();
+    for (int i: gameIndexes) {
+        // cout << "Number " << gameWithCount.game.number << " " << g.getNumberOfIntersections() << endl;
+
+        gameWithCount = gamesWithCount[i];
+
+        int numberOfWins = gameWithCount.game.getNumberOfIntersections();
+
+        if (numberOfWins == 0) {
+            continue;
+        }
+        
+        for (int j = 1; j <= numberOfWins; j ++) {
+            int gameIdToMultiply = i + j;
+
+            if (gameIdToMultiply > maxIndex) {
+                break;
+            }
+
+            gamesWithCount[gameIdToMultiply].count += gameWithCount.count;
+        }
+
+    }
+
+    int sum = 0;
+    for (int i: gameIndexes) {
+        sum += gamesWithCount[i].count;
+        cout << "Game result " << i << ": " << 
+        gamesWithCount[i].count << " Intersections: " << 
+        gamesWithCount[i].game.getNumberOfIntersections() << endl;
+    }
+
+
+    cout << "Final result: " << sum << endl;
 }
+
