@@ -156,8 +156,8 @@ def get_gears():
     bottom_max_idx = len(array) - 1
     right_max_idx = len(array[0]) - 1
     star_places = find_star_places(array)
-    
-    # not the most optimal, yet this is not the case in advent :) 
+
+    # not the most optimal, yet this is not the case in advent :)
     gear_sum = 0
 
     for star_place in star_places:
@@ -197,7 +197,6 @@ def get_gears():
                                 number_coords.append((y, x_right))
                             else:
                                 right_finished = True
-                    
 
                 if number_coords not in adjent_coors:
                     adjent_coors.append(number_coords)
@@ -207,15 +206,16 @@ def get_gears():
             for point_coords in adjent_coors:
                 int_as_char = ""
                 for one_digit_coords in point_coords:
-                    int_as_char += array[one_digit_coords[0]][one_digit_coords[1]]
-                
+                    int_as_char += array[one_digit_coords[0]][
+                        one_digit_coords[1]
+                    ]
+
                 print(int_as_char)
                 multiply_result = multiply_result * int(int_as_char)
 
             gear_sum += multiply_result
-    
-    return gear_sum
 
+    return gear_sum
 
 
 def main():
