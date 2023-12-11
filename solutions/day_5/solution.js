@@ -7,8 +7,8 @@ const readInputFile = (filePath = "input.txt") => {
 }
 
 const splitByValue = (txtValue, separator = "") => {
-    result = [];
-    new_array = [];
+    let result = [];
+    let new_array = [];
     for (let i = 0; i < txtValue.length; i++) {
         if (txtValue[i] === separator) {
             if (new_array.length > 0) {
@@ -28,10 +28,9 @@ const splitByValue = (txtValue, separator = "") => {
 
 
 const handleOneMapping = (mapping) => {
-    oneMapping = {};
-    destinationRanges = [];
-    sourceRanges = [];
-    lengthRanges = [];
+    let destinationRanges = [];
+    let  sourceRanges = [];
+    let lengthRanges = [];
 
     for (let j = 1; j < mapping.length; j++) {
         splittedString = String(mapping[j]).split(" ");
@@ -52,15 +51,9 @@ const handleOneMapping = (mapping) => {
 
 
 const mapIntoDict = (arrays) => {
-    mappings = {};
+    let mappings = {};
 
-    mappings[""]
     for (let i = 1; i < arrays.length; i++) {
-        oneMapping = {};
-        destinationRanges = [];
-        sourceRanges = [];
-        lengthRanges = [];
-
         mappings = { ...mappings, ...handleOneMapping(arrays[i]) };
     }
     return {
@@ -71,34 +64,80 @@ const mapIntoDict = (arrays) => {
 
 
 const oneMappingToFinalForm = ({destinationRanges, sourceRanges, lengthRanges}) => {
-    returnDict = {};
-    numberOfMappings = destinationRanges.length;
+    let returnDict = {};
+    const numberOfMappings = destinationRanges.length;
 
-    for (let i = 0; i > numberOfMappings; i++) {
+    for (let i = 0; i < numberOfMappings; i++) {
         let mappingNumberOccurences = lengthRanges[i];
-        for (let j = 0; j > mappingNumberOccurences; j++) {
-            returnDict[sourceRanges[i]] = destinationRanges[i];
+        for (let j = 0; j < mappingNumberOccurences; j++) {
+            returnDict[sourceRanges[i] + j] = destinationRanges[i] + j;
         }
     }
     return returnDict;
 }
 
-
-const formatMappingsToFinalShape = (mappings) => {
-    for (let key of Object.keys(mappings)) {
-        mappings[key]["mappings"] = oneMappingToFinalForm(mappings[key]);
+const fillNotPresentSources = (mappings) => {
+    const maxNumber = Math.max(...Object.keys(mappings));
+    for (let i = 0; i < maxNumber; i++) {
+        if (!mappings[i]) {
+            mappings[i] = i;
+        }
     }
     return mappings;
 }
 
 
-function main() {
+const formatMappingsToFinalShape = (mappings) => {
+    for (let key of Object.keys(mappings)) {
+        let parsedDict = oneMappingToFinalForm(mappings[key]);
+        mappings[key]["mappings"] = fillNotPresentSources(parsedDict);
+    }
+    return mappings;
+}
+
+const mapsOrder = [
+    'seed-to-soil',
+    'soil-to-fertilizer',
+    'fertilizer-to-water',
+    'water-to-light',
+    'light-to-temperature',
+    'temperature-to-humidity',
+    'humidity-to-location'
+];
+
+const runTask = () => {
     const input = readInputFile();
-    splittedStrings = splitByValue(input);
-    arrays = splitByValue(splittedStrings, " ")[0];
-    mappedDicts = mapIntoDict(arrays);
+    console.log(1);
+    const splittedStrings = splitByValue(input);
+    console.log(2);
+    const arrays = splitByValue(splittedStrings, " ")[0];
+    console.log(3);
+
+    const mappedDicts = mapIntoDict(arrays);
+    console.log(4);
+
     mappedDicts["mappings"] = formatMappingsToFinalShape(mappedDicts["mappings"]);
-    console.log(mappedDicts["mappings"]);
+    console.log(5);
+
+    let lowestLocation = 10000; // just a big number
+    
+    for (let seed of mappedDicts["seeds"]) {
+        let currentValue = seed;
+        for (let map of mapsOrder) {
+            currentValue = mappedDicts["mappings"][map]["mappings"][currentValue];
+        }
+        if (currentValue < lowestLocation) {
+            lowestLocation = currentValue;
+        }
+    }   
+
+    return lowestLocation;
+    
+}
+
+function main() {
+    const lowestLocation = runTask();
+    console.log(lowestLocation);
 }
 
 main();
