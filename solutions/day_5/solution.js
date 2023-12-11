@@ -62,37 +62,15 @@ const mapIntoDict = (arrays) => {
     };
 }
 
-
-const oneMappingToFinalForm = ({destinationRanges, sourceRanges, lengthRanges}) => {
-    let returnDict = {};
-    const numberOfMappings = destinationRanges.length;
-
-    for (let i = 0; i < numberOfMappings; i++) {
-        let mappingNumberOccurences = lengthRanges[i];
-        for (let j = 0; j < mappingNumberOccurences; j++) {
-            returnDict[sourceRanges[i] + j] = destinationRanges[i] + j;
+const performMapping = ({sourceValue, destinationRanges, sourceRanges, lengthRanges}) => {
+    let returnValue;
+    for (let i = 0; i < destinationRanges.length; i++) {
+        if (sourceValue >= sourceRanges[i] && sourceValue <= sourceRanges[i] + lengthRanges[i]) {
+            returnValue = destinationRanges[i] + sourceValue - sourceRanges[i];
+            break;
         }
     }
-    return returnDict;
-}
-
-const fillNotPresentSources = (mappings) => {
-    const maxNumber = Math.max(...Object.keys(mappings));
-    for (let i = 0; i < maxNumber; i++) {
-        if (!mappings[i]) {
-            mappings[i] = i;
-        }
-    }
-    return mappings;
-}
-
-
-const formatMappingsToFinalShape = (mappings) => {
-    for (let key of Object.keys(mappings)) {
-        let parsedDict = oneMappingToFinalForm(mappings[key]);
-        mappings[key]["mappings"] = fillNotPresentSources(parsedDict);
-    }
-    return mappings;
+    return returnValue ? returnValue : sourceValue;
 }
 
 const mapsOrder = [
@@ -107,24 +85,16 @@ const mapsOrder = [
 
 const runTask = () => {
     const input = readInputFile();
-    console.log(1);
     const splittedStrings = splitByValue(input);
-    console.log(2);
     const arrays = splitByValue(splittedStrings, " ")[0];
-    console.log(3);
-
     const mappedDicts = mapIntoDict(arrays);
-    console.log(4);
 
-    mappedDicts["mappings"] = formatMappingsToFinalShape(mappedDicts["mappings"]);
-    console.log(5);
-
-    let lowestLocation = 10000; // just a big number
+    let lowestLocation = Infinity; // a very large number
     
     for (let seed of mappedDicts["seeds"]) {
         let currentValue = seed;
         for (let map of mapsOrder) {
-            currentValue = mappedDicts["mappings"][map]["mappings"][currentValue];
+            currentValue = performMapping({"sourceValue": currentValue, ...mappedDicts["mappings"][map]});
         }
         if (currentValue < lowestLocation) {
             lowestLocation = currentValue;
