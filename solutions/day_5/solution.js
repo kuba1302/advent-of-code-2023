@@ -184,7 +184,7 @@ const performRangeMapping = ({
     }
   }
 
-  return outputRanges;
+  return outputRanges ? outputRanges: inputRanges;
 };
 
 const mapsOrder = [
